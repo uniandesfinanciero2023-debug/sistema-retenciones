@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIANDES · Sistema de Gestión de Retenciones</title>
+    <!-- Fuente moderna Poppins / Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos suaves -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #e8f0fe;
+            padding: 25px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sistema-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -10px rgba(10, 61, 98, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(93, 173, 226, 0.2);
+        }
+
+        .header-universidad {
+            background: linear-gradient(95deg, #0A3D62 0%, #1B4F72 100%);
+            padding: 18px 32px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 3px solid #5DADE2;
+        }
+
+        .header-universidad i {
+            color: #D6EAF8;
+            font-size: 2rem;
+        }
+
+        .tabs-menu {
+            display: flex;
+            background: white;
+            padding: 0 20px;
+            gap: 6px;
+            border-bottom: 1px solid #cde2f2;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: transparent;
+            border: none;
+            color: #1B4F72;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 0px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn i {
+            color: #5DADE2;
+            font-size: 1.1rem;
+        }
+
+        .tab-btn:hover {
+            background-color: #f0f9ff;
+            border-bottom-color: #5DADE2;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #0A3D62;
+            background: #f4fbff;
+            font-weight: 600;
+            color: #0A3D62;
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 30px 30px 35px;
+            background: #f9fcff;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0.3; transform: translateY(5px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 22px;
+            padding: 24px 28px;
+            box-shadow: 0 8px 18px rgba(10, 61, 98, 0.06);
+            border: 1px solid rgba(93, 173, 226, 0.25);
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 24px rgba(10, 61, 98, 0.12);
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #5DADE2;
+            color: #0A3D62;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .btn-primary {
+            background: #0A3D62;
+            border-color: #0A3D62;
+            color: white;
+        }
+
+        .btn-primary i {
+            color: #D6EAF8;
+        }
+
+        .btn-primary:hover {
+            background: #1B4F72;
+        }
+
+        .btn-outline:hover {
+            background: #e3f0fa;
+        }
+
+        .btn-danger {
+            border-color: #c0392b;
+            color: #c0392b;
+        }
+        .btn-danger:hover {
+            background: #fdedeb;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 18px;
+            background: white;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.02);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #0A3D62;
+            color: white;
+            font-weight: 500;
+            padding: 16px 12px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #d4e6f5;
+            background: white;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .renta-badge {
+            background: #D6EAF8;
+            color: #0A3D62;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin: 2px 0;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #1B4F72;
+            margin-bottom: 6px;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #c5dff0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            border-color: #0A3D62;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10,61,98,0.15);
+        }
+
+        input:disabled, select:disabled {
+            background: #f0f4f8;
+            color: #4a5b6b;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #0A3D62;
+        }
+
+        .row-renta {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 12px;
+            background: #f2f9ff;
+            padding: 10px 15px;
+            border-radius: 40px;
+        }
+
+        .row-renta select {
+            flex: 1;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #c0392b;
+            padding: 0 5px;
+        }
+
+        .btn-add {
+            background: #e1f0fa;
+            border: none;
+            border-radius: 40px;
+            padding: 10px 18px;
+            margin-top: 5px;
+            font-weight: 500;
+            color: #0A3D62;
+        }
+
+        .calc-result {
+            background: #fff9e0;
+            padding: 14px 18px;
+            border-radius: 24px;
+            font-weight: 600;
+            color: #7d5d0b;
+        }
+
+        .total-pagar {
+            background: #d5f0d5;
+            padding: 14px 18px;
+            border-radius: 24px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .currency {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0A3D62;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            max-width: 400px;
+            width: 90%;
+            border-radius: 36px;
+            padding: 28px;
+            box-shadow: 0 30px 50px rgba(10,61,98,0.5);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 28px;
+        }
+
+        @media (max-width: 700px) {
+            .tabs-menu { justify-content: center; }
+            .header-universidad { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="sistema-container">
+    <div class="header-universidad">
+        <i class="fas fa-university"></i> 
+        Sistema de Gestión de Retenciones - UNIANDES
+    </div>
+
+    <!-- menú tabs -->
+    <div class="tabs-menu">
+        <button class="tab-btn active" data-tab="tab1"><i class="fas fa-user-plus"></i> Registro</button>
+        <button class="tab-btn" data-tab="tab2"><i class="fas fa-database"></i> Base de Datos</button>
+        <button class="tab-btn" data-tab="tab3"><i class="fas fa-calculator"></i> Cálculo</button>
+        <button class="tab-btn" data-tab="tab4"><i class="fas fa-chart-bar"></i> Reportes</button>
+    </div>
+
+    <!-- PESTAÑA 1: REGISTRO DE PROVEEDORES -->
+    <div id="tab1" class="tab-pane active">
+        <div class="card">
+            <h3 style="color:#0A3D62; margin-bottom: 20px;"><i class="fas fa-file-invoice" style="margin-right: 10px;"></i>Registrar nuevo proveedor</h3>
+            <form id="formProveedor">
+                <!-- campos fijos -->
+                <div class="form-group">
+                    <label>RUC (13 dígitos)</label>
+                    <input type="text" id="ruc" placeholder="0000000000000" maxlength="13" inputmode="numeric" pattern="\d*">
+                    <!-- Aquí aparecerá el mensaje de validación en tiempo real -->
+                </div>
+                <div class="form-group">
+                    <label>Proveedor</label>
+                    <input type="text" id="proveedor" placeholder="Razón social">
+                </div>
+                
+                <!-- CAMPO CATEGORÍA: Select + Input para nueva categoría -->
+                <div class="form-group" id="categoria-group">
+                    <label>Categoría</label>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="categoriaSelect" style="flex: 1; display: block;">
+                            <!-- Las opciones se llenan desde JavaScript -->
+                        </select>
+                        <input type="text" id="categoriaInput" style="flex: 1; display: none;" placeholder="Escriba nueva categoría">
+                    </div>
+                    <small style="color: #1B4F72;">Seleccione de la lista o elija "➕ Nueva..." para agregar</small>
+                </div>
+
+                <div class="form-group">
+                    <label>% Retención IVA</label>
+                    <select id="retencionIva">
+                        <option value="0">0% (No aplica)</option>
+                        <option value="30">30%</option>
+                        <option value="70">70%</option>
+                        <option value="100">100%</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="granContribuyente">
+                    <label for="granContribuyente" style="margin:0">Gran Contribuyente / Sin retención renta</label>
+                </div>
+
+                <!-- contenedor dinámico para retenciones renta con select -->
+                <div style="margin: 25px 0 10px;">
+                    <label>📌 Retenciones de Renta (porcentaje + código)</label>
+                    <div id="rentaRowsContainer"></div>
+                    <button type="button" class="btn btn-outline btn-add" id="addRentaRow"><i class="fas fa-plus-circle"></i> Agregar otra retención renta</button>
+                </div>
+
+                <!-- botones guardar / actualizar -->
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn btn-primary" id="guardarProveedor"><i class="fas fa-save"></i> Guardar proveedor</button>
+                    <button type="button" class="btn btn-outline" id="cancelarEdicion" style="display: none;"><i class="fas fa-times"></i> Cancelar edición</button>
+                </div>
+                <p id="formFeedback" style="margin-top: 15px; font-size:0.9rem;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 2: BASE DE DATOS -->
+    <div id="tab2" class="tab-pane">
+        <div class="card">
+            <h3 style="color:#0A3D62; margin-bottom: 20px;"><i class="fas fa-list-alt"></i> Proveedores registrados</h3>
+            <div class="table-responsive">
+                <table id="tablaProveedores">
+                    <thead>
+                        <tr><th>RUC</th><th>Proveedor</th><th>Categoría</th><th>Ret. Renta (%)</th><th>Ret. IVA %</th><th>Códigos</th><th>Gran Contrib.</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody id="tbodyProveedores"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 3: CÁLCULO DE RETENCIONES -->
+    <div id="tab3" class="tab-pane">
+        <div class="card">
+            <h3 style="color:#0A3D62; margin-bottom: 25px;"><i class="fas fa-calculator"></i> Calcular pago a proveedor</h3>
+            <div class="form-group">
+                <label>Seleccionar proveedor</label>
+                <select id="selectorProveedorCalc"></select>
+            </div>
+            <div id="infoPorcentajes" style="background:#e6f2fb; border-radius: 30px; padding: 15px; margin: 15px 0;">
+                <span>📊 % Renta disponibles: </span><span id="displayRentas"></span><br>
+                <span>🧾 % IVA: </span><span id="displayIva"></span>
+            </div>
+            <!-- Subtotal ahora inicia en 0 -->
+            <div class="form-group"><label>Subtotal factura ($)</label><input type="number" id="subtotal" step="0.01" min="0" value="0"></div>
+            <div class="form-group"><label>IVA 15%</label><input type="text" id="ivaCalculado" disabled class="calc-result"></div>
+            <div class="form-group"><label>Total factura</label><input type="text" id="totalFactura" disabled class="calc-result"></div>
+            <div class="form-group"><label>Retención Renta (%)</label><select id="porcentajeRentaSelect"></select></div>
+            <div class="form-group"><label>Retención Renta ($)</label><input type="text" id="retencionRentaCalc" disabled class="calc-result"></div>
+            <div class="form-group"><label>Retención IVA ($)</label><input type="text" id="retencionIvaCalc" disabled class="calc-result"></div>
+            <div class="form-group"><label>TOTAL A PAGAR</label><input type="text" id="totalPagar" disabled class="total-pagar"></div>
+        </div>
+    </div>
+
+    <!-- PESTAÑA 4: REPORTES Y FILTROS (con columna Códigos añadida) -->
+    <div id="tab4" class="tab-pane">
+        <div class="card">
+            <h3 style="color:#0A3D62;"><i class="fas fa-chart-pie"></i> Reportes y estadísticas</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin: 25px 0;">
+                <input type="text" id="filtroReporte" placeholder="Buscar por proveedor, RUC o categoría" style="flex:2;">
+                <button class="btn btn-primary" id="exportarExcel"><i class="fas fa-file-excel"></i> Exportar a Excel</button>
+            </div>
+            <div class="table-responsive">
+                <table id="tablaReportes">
+                    <thead>
+                        <tr>
+                            <th>RUC</th>
+                            <th>Proveedor</th>
+                            <th>Categoría</th>
+                            <th>% Renta</th>
+                            <th>Códigos</th>
+                            <th>% IVA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyReportes"></tbody>
+                </table>
+            </div>
+            <div id="summaryProveedor" style="background: #D6EAF8; border-radius: 30px; padding: 16px; margin: 20px 0;">
+                📋 <span id="summaryText">Selecciona un proveedor en la búsqueda</span>
+            </div>
+            <canvas id="chartRetenciones" style="max-height: 250px; margin-top: 20px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PERSONALIZADO -->
+<div id="modal" class="modal-overlay">
+    <div class="modal-card">
+        <p id="modalMensaje" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="modalCancel">Cancelar</button>
+            <button class="btn btn-primary" id="modalConfirm">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- CONSTANTES Y ESTADO ----------
+        const STORAGE_KEY = 'proveedores_uniandes';
+        let proveedores = [];
+        let currentEditRuc = null;
+        let modalResolve = null;
+        let chartInstance = null;
+
+        // Lista fija de retenciones renta (porcentaje + código) según lo proporcionado, incluyendo 1% - 310 y 1% - 343
+        const rentaOptions = [
+            { porcentaje: 0, codigo: '332' },
+            { porcentaje: 1, codigo: '310' },   // NUEVA
+            { porcentaje: 1, codigo: '343' },   // NUEVA
+            { porcentaje: 2, codigo: '312' },
+            { porcentaje: 2, codigo: '322' },
+            { porcentaje: 2, codigo: '3430' },
+            { porcentaje: 3, codigo: '307' },
+            { porcentaje: 3, codigo: '309' },
+            { porcentaje: 3, codigo: '311' },
+            { porcentaje: 3, codigo: '3440' },
+            { porcentaje: 5, codigo: '303A' },
+            { porcentaje: 10, codigo: '303' },
+            { porcentaje: 10, codigo: '304' },
+            { porcentaje: 10, codigo: '308' },
+            { porcentaje: 10, codigo: '320' },
+            { porcentaje: 10, codigo: '304' }, // duplicado, se mostrará igual
+            { porcentaje: 10, codigo: '304' },
+            { porcentaje: 10, codigo: '304' },
+            { porcentaje: 25, codigo: '346' }
+        ];
+
+        // elementos
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panes = document.querySelectorAll('.tab-pane');
+        const modalOverlay = document.getElementById('modal');
+        const modalMensaje = document.getElementById('modalMensaje');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+
+        // Elementos para categoría
+        const categoriaSelect = document.getElementById('categoriaSelect');
+        const categoriaInput = document.getElementById('categoriaInput');
+
+        // ---------- CARGA INICIAL ----------
+        function cargarProveedores() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                proveedores = JSON.parse(stored);
+            } else {
+                // datos de ejemplo con los nuevos códigos
+                proveedores = [
+                    { ruc: '1790012345001', proveedor: 'CONSTRUCTORA ANDINA', categoria: 'Construcción', retencionesRenta: [{porcentaje:2, codigo:'312'}, {porcentaje:2.75, codigo:'344'}], retencionIVA:30, granContribuyente: false },
+                    { ruc: '0998765432001', proveedor: 'SOLUCIONES DIGITALES', categoria: 'Tecnología', retencionesRenta: [{porcentaje:10, codigo:'303'}], retencionIVA:70, granContribuyente: false },
+                    { ruc: '1801122334001', proveedor: 'AGROINDUSTRIAL', categoria: 'Agrícola', retencionesRenta: [], retencionIVA:0, granContribuyente: true }
+                ];
+                guardarProveedores();
+            }
+            actualizarListaCategorias();
+        }
+        function guardarProveedores() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(proveedores));
+        }
+
+        // ---------- ACTUALIZAR LISTA DE CATEGORÍAS (select) ----------
+        function actualizarListaCategorias() {
+            const categoriasUnicas = [...new Set(proveedores.map(p => p.categoria).filter(Boolean))];
+            let html = '<option value="">-- Seleccione una categoría --</option>';
+            categoriasUnicas.forEach(cat => {
+                html += `<option value="${cat}">${cat}</option>`;
+            });
+            html += '<option value="__new__">➕ Nueva categoría...</option>';
+            categoriaSelect.innerHTML = html;
+        }
+
+        // ---------- MANEJADOR PARA NUEVA CATEGORÍA ----------
+        categoriaSelect.addEventListener('change', function() {
+            if (this.value === '__new__') {
+                categoriaSelect.style.display = 'none';
+                categoriaInput.style.display = 'block';
+                categoriaInput.value = '';
+                categoriaInput.focus();
+            } else {
+                categoriaSelect.style.display = 'block';
+                categoriaInput.style.display = 'none';
+            }
+        });
+
+        function finalizarNuevaCategoria() {
+            const nuevoValor = categoriaInput.value.trim();
+            if (nuevoValor !== '') {
+                // Verificar si ya existe (para no duplicar visualmente)
+                const existe = [...categoriaSelect.options].some(opt => opt.value === nuevoValor);
+                if (!existe) {
+                    // Agregar la nueva categoría al select antes de la opción "Nueva"
+                    const option = document.createElement('option');
+                    option.value = nuevoValor;
+                    option.text = nuevoValor;
+                    categoriaSelect.add(option, categoriaSelect.options.length - 1); // antes de "Nueva"
+                }
+                categoriaSelect.value = nuevoValor;
+            }
+            categoriaSelect.style.display = 'block';
+            categoriaInput.style.display = 'none';
+        }
+
+        categoriaInput.addEventListener('blur', finalizarNuevaCategoria);
+        categoriaInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                finalizarNuevaCategoria();
+            }
+        });
+
+        // ---------- MODAL (promesa) ----------
+        function mostrarModal(mensaje, confirmOnly = false) {
+            modalMensaje.innerText = mensaje;
+            modalOverlay.style.display = 'flex';
+            if (confirmOnly) modalCancel.style.display = 'none';
+            else modalCancel.style.display = 'inline-flex';
+            return new Promise((resolve) => {
+                modalResolve = resolve;
+            });
+        }
+        modalConfirm.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            if (modalResolve) modalResolve(true);
+        });
+        modalCancel.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            if (modalResolve) modalResolve(false);
+        });
+
+        // ---------- RENDER REGISTRO (filas dinámicas renta con SELECT) ----------
+        const rentaContainer = document.getElementById('rentaRowsContainer');
+        const addRentaBtn = document.getElementById('addRentaRow');
+        const granContribCheck = document.getElementById('granContribuyente');
+        const rucInput = document.getElementById('ruc');
+        const proveedorInput = document.getElementById('proveedor');
+        const retencionIvaSelect = document.getElementById('retencionIva');
+        const cancelarEdicionBtn = document.getElementById('cancelarEdicion');
+
+        // ---------- VALIDACIÓN EN TIEMPO REAL DEL RUC ----------
+        const feedbackRuc = document.createElement('small');
+        feedbackRuc.style.display = 'block';
+        feedbackRuc.style.marginTop = '4px';
+        feedbackRuc.style.minHeight = '20px';
+        rucInput.parentNode.appendChild(feedbackRuc);
+
+        rucInput.addEventListener('input', function() {
+            const ruc = this.value.trim();
+            if (ruc.length === 13 && /^\d{13}$/.test(ruc)) {
+                const existe = proveedores.some(p => p.ruc === ruc);
+                if (existe) {
+                    feedbackRuc.textContent = '⚠️ Este RUC ya existe. Puede agregar otra retención al guardar.';
+                    feedbackRuc.style.color = '#c0392b';
+                } else {
+                    feedbackRuc.textContent = '';
+                }
+            } else {
+                feedbackRuc.textContent = '';
+            }
+        });
+
+        function actualizarEstadoCamposRenta() {
+            const disabled = granContribCheck.checked;
+            document.querySelectorAll('.renta-row select').forEach(sel => sel.disabled = disabled);
+            document.querySelectorAll('.renta-row .btn-icon').forEach(btn => btn.disabled = disabled);
+            addRentaBtn.disabled = disabled;
+        }
+
+        // Genera las opciones del select de renta
+        function getRentaOptionsHtml(selectedPorc = null, selectedCod = null) {
+            let options = '';
+            rentaOptions.forEach((opt, index) => {
+                const value = `${opt.porcentaje}|${opt.codigo}`;
+                const selected = (selectedPorc === opt.porcentaje && selectedCod === opt.codigo) ? 'selected' : '';
+                options += `<option value="${value}" ${selected}>${opt.porcentaje}% - ${opt.codigo}</option>`;
+            });
+            return options;
+        }
+
+        function crearRentaRow(porcentaje = '', codigo = '') {
+            const div = document.createElement('div');
+            div.className = 'row-renta renta-row';
+            const selectHtml = `
+                <select class="renta-select" ${granContribCheck.checked ? 'disabled' : ''}>
+                    ${getRentaOptionsHtml(porcentaje, codigo)}
+                </select>
+            `;
+            div.innerHTML = `
+                ${selectHtml}
+                <button type="button" class="btn-icon" ${granContribCheck.checked ? 'disabled' : ''}><i class="fas fa-trash-alt"></i></button>
+            `;
+            div.querySelector('.btn-icon').addEventListener('click', (e) => {
+                e.stopPropagation();
+                div.remove();
+            });
+            return div;
+        }
+
+        function renderRentaRowsFromArray(retenciones = []) {
+            rentaContainer.innerHTML = '';
+            if (retenciones.length === 0) {
+                rentaContainer.appendChild(crearRentaRow('', '')); // una fila vacía (seleccionará la primera opción por defecto)
+            } else {
+                retenciones.forEach(r => rentaContainer.appendChild(crearRentaRow(r.porcentaje, r.codigo)));
+            }
+            actualizarEstadoCamposRenta();
+        }
+
+        addRentaBtn.addEventListener('click', () => {
+            rentaContainer.appendChild(crearRentaRow('', ''));
+        });
+
+        granContribCheck.addEventListener('change', actualizarEstadoCamposRenta);
+
+        // ---------- GUARDAR / EDITAR ----------
+        document.getElementById('guardarProveedor').addEventListener('click', async () => {
+            const ruc = rucInput.value.trim();
+            const proveedor = proveedorInput.value.trim();
+            
+            // Obtener categoría según qué campo esté visible
+            let categoria;
+            if (categoriaSelect.style.display !== 'none') {
+                categoria = categoriaSelect.value;
+            } else {
+                categoria = categoriaInput.value.trim();
+            }
+            // Si está vacío o es la opción por defecto o "__new__", no válido
+            if (!categoria || categoria === '' || categoria === '__new__') {
+                mostrarModal('Debe seleccionar o escribir una categoría válida.', true);
+                return;
+            }
+
+            const retencionIva = parseInt(retencionIvaSelect.value, 10);
+            const granContrib = granContribCheck.checked;
+
+            if (!ruc || !proveedor || !categoria || isNaN(retencionIva)) {
+                mostrarModal('Complete todos los campos obligatorios.', true); return;
+            }
+            if (!/^\d{13}$/.test(ruc)) {
+                mostrarModal('RUC debe tener 13 dígitos numéricos', true); return;
+            }
+
+            // Recoger filas renta desde los selects
+            const rentaRows = [];
+            document.querySelectorAll('.renta-row .renta-select').forEach(select => {
+                const value = select.value; // formato "porcentaje|codigo"
+                if (value) {
+                    const [porc, cod] = value.split('|');
+                    const porcentaje = parseFloat(porc);
+                    if (!isNaN(porcentaje) && cod) {
+                        rentaRows.push({ porcentaje, codigo: cod });
+                    }
+                }
+            });
+
+            if (!granContrib && rentaRows.length === 0) {
+                mostrarModal('Debe agregar al menos una retención renta o marcar Gran Contribuyente', true); return;
+            }
+
+            const existingIndex = proveedores.findIndex(p => p.ruc === ruc);
+            const isEditing = currentEditRuc !== null && currentEditRuc === ruc;
+
+            if (existingIndex !== -1 && !isEditing) {
+                const confirm = await mostrarModal('El proveedor ya existe. ¿Desea agregar otro porcentaje de retención en renta?');
+                if (confirm) {
+                    if (proveedores[existingIndex].granContribuyente) {
+                        mostrarModal('El proveedor es Gran Contribuyente (no puede tener retenciones renta)', true);
+                        return;
+                    }
+                    proveedores[existingIndex].retencionesRenta.push(...rentaRows);
+                    guardarProveedores();
+                    renderTablaProveedores();
+                    limpiarFormulario();
+                    actualizarListaCategorias();
+                    mostrarModal('Retenciones agregadas correctamente', true);
+                }
+                return;
+            }
+
+            if (isEditing) {
+                proveedores[existingIndex] = {
+                    ruc, proveedor, categoria, retencionIVA: retencionIva, granContrib,
+                    retencionesRenta: granContrib ? [] : rentaRows
+                };
+                guardarProveedores();
+                renderTablaProveedores();
+                limpiarFormulario();
+                cancelarEdicionBtn.style.display = 'none';
+                currentEditRuc = null;
+                actualizarListaCategorias();
+                mostrarModal('Proveedor actualizado', true);
+            } else {
+                if (existingIndex !== -1) return;
+                proveedores.push({
+                    ruc, proveedor, categoria, retencionIVA: retencionIva, granContrib,
+                    retencionesRenta: granContrib ? [] : rentaRows
+                });
+                guardarProveedores();
+                renderTablaProveedores();
+                limpiarFormulario();
+                actualizarListaCategorias();
+                mostrarModal('Proveedor guardado', true);
+            }
+            actualizarSelectorCalc();
+            renderReportes();
+        });
+
+        function limpiarFormulario() {
+            rucInput.value = ''; proveedorInput.value = ''; 
+            // Resetear campo categoría
+            categoriaSelect.style.display = 'block';
+            categoriaInput.style.display = 'none';
+            categoriaSelect.value = '';
+            retencionIvaSelect.value = '30'; // valor por defecto (30)
+            granContribCheck.checked = false;
+            renderRentaRowsFromArray([]);
+            currentEditRuc = null;
+            cancelarEdicionBtn.style.display = 'none';
+            // Limpiar feedback RUC
+            feedbackRuc.textContent = '';
+        }
+
+        cancelarEdicionBtn.addEventListener('click', () => {
+            limpiarFormulario();
+            currentEditRuc = null;
+            cancelarEdicionBtn.style.display = 'none';
+        });
+
+        // ---------- TABLA BASE DE DATOS (pestaña 2) ----------
+        function renderTablaProveedores() {
+            const tbody = document.getElementById('tbodyProveedores');
+            tbody.innerHTML = '';
+            proveedores.forEach(p => {
+                const tr = document.createElement('tr');
+                const rentasStr = p.retencionesRenta.map(r => `<span class="renta-badge">${r.porcentaje}%</span>`).join('<br>');
+                const codigosStr = p.retencionesRenta.map(r => `<span class="renta-badge">${r.codigo}</span>`).join('<br>');
+                const iva = p.retencionIVA;
+                const gran = p.granContribuyente ? '✅ Sí' : '❌ No';
+                tr.innerHTML = `
+                    <td>${p.ruc}</td><td>${p.proveedor}</td><td>${p.categoria}</td>
+                    <td>${rentasStr || (p.granContribuyente ? '<i>Sin retención</i>' : '')}</td>
+                    <td>${iva}%</td>
+                    <td>${codigosStr || ''}</td>
+                    <td>${gran}</td>
+                    <td>
+                        <button class="btn-icon editar-btn" style="color:#0A3D62;" data-ruc="${p.ruc}"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon eliminar-btn" style="color:#c0392b;" data-ruc="${p.ruc}"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.querySelectorAll('.editar-btn').forEach(b => b.addEventListener('click', editarProveedor));
+            document.querySelectorAll('.eliminar-btn').forEach(b => b.addEventListener('click', eliminarProveedor));
+        }
+
+        async function eliminarProveedor(e) {
+            const ruc = e.currentTarget.dataset.ruc;
+            const confirm = await mostrarModal(`¿Eliminar proveedor ${ruc}?`);
+            if (confirm) {
+                proveedores = proveedores.filter(p => p.ruc !== ruc);
+                guardarProveedores();
+                renderTablaProveedores();
+                actualizarSelectorCalc();
+                renderReportes();
+                actualizarListaCategorias();
+            }
+        }
+
+        function editarProveedor(e) {
+            const ruc = e.currentTarget.dataset.ruc;
+            const p = proveedores.find(p => p.ruc === ruc);
+            if (!p) return;
+            document.querySelector('.tab-btn[data-tab="tab1"]').click();
+            rucInput.value = p.ruc;
+            proveedorInput.value = p.proveedor;
+            
+            // Manejar categoría en edición
+            const existe = [...categoriaSelect.options].some(opt => opt.value === p.categoria);
+            if (!existe && p.categoria) {
+                const option = document.createElement('option');
+                option.value = p.categoria;
+                option.text = p.categoria;
+                categoriaSelect.add(option, categoriaSelect.options.length - 1);
+            }
+            categoriaSelect.value = p.categoria;
+            categoriaSelect.style.display = 'block';
+            categoriaInput.style.display = 'none';
+            categoriaInput.value = '';
+
+            retencionIvaSelect.value = p.retencionIVA;
+            granContribCheck.checked = p.granContribuyente;
+            renderRentaRowsFromArray(p.retencionesRenta);
+            currentEditRuc = p.ruc;
+            cancelarEdicionBtn.style.display = 'inline-flex';
+            actualizarEstadoCamposRenta();
+            // Al editar, limpiar feedback RUC
+            feedbackRuc.textContent = '';
+        }
+
+        // ---------- PESTAÑA 3 CÁLCULO ----------
+        const selectorProv = document.getElementById('selectorProveedorCalc');
+        const displayRentas = document.getElementById('displayRentas');
+        const displayIva = document.getElementById('displayIva');
+        const subtotalInput = document.getElementById('subtotal');
+        const ivaCalculado = document.getElementById('ivaCalculado');
+        const totalFactura = document.getElementById('totalFactura');
+        const porcentajeRentaSelect = document.getElementById('porcentajeRentaSelect');
+        const retencionRentaCalc = document.getElementById('retencionRentaCalc');
+        const retencionIvaCalc = document.getElementById('retencionIvaCalc');
+        const totalPagar = document.getElementById('totalPagar');
+
+        function actualizarSelectorCalc() {
+            selectorProv.innerHTML = '<option value="">-- Seleccionar --</option>';
+            proveedores.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.ruc;
+                opt.textContent = `${p.proveedor} (${p.ruc})`;
+                selectorProv.appendChild(opt);
+            });
+        }
+
+        function cargarDatosProveedorCalc(ruc) {
+            const p = proveedores.find(p => p.ruc === ruc);
+            if (!p) return;
+            displayIva.innerText = p.retencionIVA + '%';
+            if (p.granContribuyente) {
+                displayRentas.innerText = 'Gran Contribuyente (0%)';
+                porcentajeRentaSelect.innerHTML = '<option value="0">0%</option>';
+            } else {
+                const rentas = p.retencionesRenta.map(r => r.porcentaje);
+                displayRentas.innerText = rentas.join('%, ') + '%';
+                const unicos = [...new Set(rentas)];
+                porcentajeRentaSelect.innerHTML = unicos.map(p => `<option value="${p}">${p}%</option>`).join('');
+            }
+            recalcular();
+        }
+
+        function recalcular() {
+            const subtotal = parseFloat(subtotalInput.value) || 0;
+            const iva = subtotal * 0.15;
+            ivaCalculado.value = `$ ${iva.toFixed(2)}`;
+            const total = subtotal + iva;
+            totalFactura.value = `$ ${total.toFixed(2)}`;
+
+            const selectedRuc = selectorProv.value;
+            const p = proveedores.find(p => p.ruc === selectedRuc);
+            if (!p) return;
+
+            const porcentajeRenta = parseFloat(porcentajeRentaSelect.value) || 0;
+            const rentaDeduc = subtotal * (porcentajeRenta / 100);
+            retencionRentaCalc.value = `$ ${rentaDeduc.toFixed(2)}`;
+
+            const ivaPorcentaje = p.retencionIVA || 0;
+            const ivaDeduc = iva * (ivaPorcentaje / 100);
+            retencionIvaCalc.value = `$ ${ivaDeduc.toFixed(2)}`;
+
+            const totalPagarValor = total - rentaDeduc - ivaDeduc;
+            totalPagar.value = `$ ${totalPagarValor.toFixed(2)}`;
+        }
+
+        selectorProv.addEventListener('change', (e) => cargarDatosProveedorCalc(e.target.value));
+        subtotalInput.addEventListener('input', recalcular);
+        porcentajeRentaSelect.addEventListener('change', recalcular);
+
+        // ---------- PESTAÑA 4 REPORTES (con columna de códigos) ----------
+        const filtro = document.getElementById('filtroReporte');
+        const tbodyReportes = document.getElementById('tbodyReportes');
+        const summarySpan = document.getElementById('summaryText');
+        const exportBtn = document.getElementById('exportarExcel');
+        const canvas = document.getElementById('chartRetenciones');
+
+        function renderReportes() {
+            const texto = filtro.value.toLowerCase();
+            const filtrados = proveedores.filter(p => 
+                p.proveedor.toLowerCase().includes(texto) || 
+                p.ruc.includes(texto) || 
+                p.categoria.toLowerCase().includes(texto)
+            );
+            tbodyReportes.innerHTML = '';
+            filtrados.forEach(p => {
+                const rentas = p.granContribuyente ? 'Sin renta' : p.retencionesRenta.map(r => r.porcentaje+'%').join(', ');
+                const codigos = p.granContribuyente ? '' : p.retencionesRenta.map(r => r.codigo).join(', ');
+                const row = `<tr>
+                    <td>${p.ruc}</td>
+                    <td>${p.proveedor}</td>
+                    <td>${p.categoria}</td>
+                    <td>${rentas}</td>
+                    <td>${codigos}</td>
+                    <td>${p.retencionIVA}%</td>
+                </tr>`;
+                tbodyReportes.innerHTML += row;
+            });
+
+            if (filtrados.length) {
+                const p = filtrados[0];
+                const rentas = p.granContribuyente ? 'no aplica renta' : p.retencionesRenta.map(r => r.porcentaje+'%').join(' y ');
+                summarySpan.innerText = `Proveedor "${p.proveedor}" comúnmente aplica ${rentas} de retención renta y ${p.retencionIVA}% de IVA.`;
+            } else {
+                summarySpan.innerText = 'No hay proveedores con ese filtro.';
+            }
+
+            // actualizar gráfico
+            const rentaCounts = {};
+            proveedores.forEach(p => {
+                if (!p.granContribuyente) {
+                    p.retencionesRenta.forEach(r => {
+                        rentaCounts[r.porcentaje] = (rentaCounts[r.porcentaje] || 0) + 1;
+                    });
+                }
+            });
+            const labels = Object.keys(rentaCounts).map(l => l + '%');
+            const data = Object.values(rentaCounts);
+            if (chartInstance) chartInstance.destroy();
+            if (canvas) {
+                chartInstance = new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Frecuencia de % retención renta',
+                            data: data,
+                            backgroundColor: '#5DADE2'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+
+        filtro.addEventListener('input', renderReportes);
+
+        // --- EXPORTAR A EXCEL (CSV con RUC como texto para evitar notación científica) ---
+        function exportarAExcel() {
+            const cabeceras = ['RUC', 'Proveedor', 'Categoría', 'Retenciones Renta (%)', 'Retención IVA (%)', 'Códigos', 'Gran Contribuyente'];
+            const filas = proveedores.map(p => {
+                const rentasStr = p.granContribuyente ? 'Sin retención' : p.retencionesRenta.map(r => r.porcentaje + '%').join(' | ');
+                const codigosStr = p.granContribuyente ? '' : p.retencionesRenta.map(r => r.codigo).join(' | ');
+                const granStr = p.granContribuyente ? 'Sí' : 'No';
+                // Forzamos el RUC como texto anteponiendo un apóstrofe, así Excel no lo convierte en número
+                return [
+                    `'${p.ruc}`,
+                    p.proveedor,
+                    p.categoria,
+                    rentasStr,
+                    p.retencionIVA + '%',
+                    codigosStr,
+                    granStr
+                ];
+            });
+            // Usamos punto y coma como separador y envolvemos cada campo entre comillas por seguridad
+            const contenido = [cabeceras.join(';'), ...filas.map(f => f.map(c => `"${c}"`).join(';'))].join('\n');
+            const blob = new Blob(['\uFEFF' + contenido], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'proveedores_retenciones.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        exportBtn.addEventListener('click', exportarAExcel);
+
+        // ---------- CAMBIO DE PESTAÑAS ----------
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                panes.forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'tab2') renderTablaProveedores();
+                if (tab.dataset.tab === 'tab4') renderReportes();
+            });
+        });
+
+        // ---------- INICIALIZACIÓN ----------
+        cargarProveedores();
+        renderRentaRowsFromArray([]);
+        actualizarSelectorCalc();
+        renderTablaProveedores();
+        renderReportes();
+        setTimeout(() => { if (selectorProv.value) cargarDatosProveedorCalc(selectorProv.value); }, 100);
+    })();
+</script>
+</body>
+</html>
